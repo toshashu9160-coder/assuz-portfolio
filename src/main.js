@@ -13,6 +13,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollSmoother } from "gsap/ScrollSmoother";
 import { SplitText } from "gsap/SplitText";
 import { TextPlugin } from "gsap/TextPlugin";
+import { supabase, getImageUrl, getWorkImageUrl, getProjectCoverUrl, BUCKET_NAME } from './lib/supabase.js';
 
 gsap.registerPlugin(MotionPathPlugin, ScrollTrigger, ScrollSmoother, SplitText, TextPlugin, RoughEase, ExpoScaleEase, SlowMo, CustomEase, CustomBounce);
 
@@ -24,39 +25,39 @@ const projects = [
   {
     name: 'Beeyond',
     folder: '/projects/Beeyond',
-    cover: '/projects/Beeyond/1.png',
+    cover: getProjectCoverUrl('Beeyond'),
     category: 'Travel Brand',
     description: 'Complete brand identity for a travel discovery platform — logo, UI, and visual system.',
-    images: Array.from({ length: 14 }, (_, i) => `/projects/Beeyond/${i + 1}.png`),
+    images: Array.from({ length: 14 }, (_, i) => getImageUrl('Beeyond', `${i + 1}.png`)),
   },
   {
     name: 'Sunity',
     folder: '/projects/Sunity',
-    cover: '/projects/Sunity/1.png',
+    cover: getProjectCoverUrl('Sunity'),
     category: 'Energy Brand',
     description: 'Brand design for a solar energy company — bold visuals for sustainable power.',
-    images: ['/projects/Sunity/1.png', '/projects/Sunity/2.png', '/projects/Sunity/2.5.png', '/projects/Sunity/3.png', '/projects/Sunity/4.png', '/projects/Sunity/5.png', '/projects/Sunity/6.png', '/projects/Sunity/7.png', '/projects/Sunity/8.png', '/projects/Sunity/9.png', '/projects/Sunity/10.png', '/projects/Sunity/11.png'],
+    images: ['1.png', '2.png', '2.5.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png', '10.png', '11.png'].map(f => getImageUrl('Sunity', f)),
   },
   {
     name: 'Uri',
     folder: '/projects/Uri',
-    cover: '/projects/Uri/1.png',
+    cover: getProjectCoverUrl('Uri'),
     category: 'Mobile App',
     description: 'UI/UX design for a gamified language learning app — fun, engaging, modern.',
-    images: [...Array.from({ length: 14 }, (_, i) => `/projects/Uri/${i + 1}.png`), '/projects/Uri/15.mp4'],
+    images: [...Array.from({ length: 13 }, (_, i) => getImageUrl('Uri', `${i + 1}.png`)), getImageUrl('Uri', '15.mp4')],
   },
 ];
 
 // --- Gallery Works Data (from /works/ folder) ---
 const works = [
-  { id: 1, src: '/works/1.jpg', title: 'Desi Hip-Hop', category: 'Poster Design' },
-  { id: 2, src: '/works/2.jpg', title: 'Travis Scott × Jordan', category: 'Sneaker Art' },
-  { id: 3, src: '/works/3.jpg', title: 'The Weeknd', category: 'Album Art' },
-  { id: 4, src: '/works/4.jpg', title: 'Travis Scott — Cactus Jack', category: 'Concert Poster' },
-  { id: 5, src: '/works/5.jpg', title: 'Playboi Carti — I AM MUSIC', category: 'Editorial Design' },
-  { id: 6, src: '/works/6.jpg', title: 'Nike Air Jordan — We Fly', category: 'Brand Poster' },
-  { id: 7, src: '/works/7.jpg', title: 'Kendrick Lamar — DAMN.', category: 'Album Concept' },
-  { id: 8, src: '/works/8.jpg', title: 'Kendrick Lamar — GNX', category: 'Typographic Poster' },
+  { id: 1, src: getWorkImageUrl('1.jpg'), title: 'Desi Hip-Hop', category: 'Poster Design' },
+  { id: 2, src: getWorkImageUrl('2.jpg'), title: 'Travis Scott × Jordan', category: 'Sneaker Art' },
+  { id: 3, src: getWorkImageUrl('3.jpg'), title: 'The Weeknd', category: 'Album Art' },
+  { id: 4, src: getWorkImageUrl('4.jpg'), title: 'Travis Scott — Cactus Jack', category: 'Concert Poster' },
+  { id: 5, src: getWorkImageUrl('5.jpg'), title: 'Playboi Carti — I AM MUSIC', category: 'Editorial Design' },
+  { id: 6, src: getWorkImageUrl('6.jpg'), title: 'Nike Air Jordan — We Fly', category: 'Brand Poster' },
+  { id: 7, src: getWorkImageUrl('7.jpg'), title: 'Kendrick Lamar — DAMN.', category: 'Album Concept' },
+  { id: 8, src: getWorkImageUrl('8.jpg'), title: 'Kendrick Lamar — GNX', category: 'Typographic Poster' },
 ];
 
 // --- SVGs ---
@@ -89,7 +90,7 @@ function renderApp() {
         <!-- Main Header Row -->
         <div class="dynamic-island__header">
           <div class="dynamic-island__profile">
-            <img src="/avatar.JPG" alt="Ashutosh" class="dynamic-island__avatar" />
+            <img src="${supabase ? supabase.storage.from(BUCKET_NAME).getPublicUrl('avatar.JPG').data.publicUrl : '/avatar.JPG'}" alt="Ashutosh" class="dynamic-island__avatar" />
           </div>
           <div class="dynamic-island__meta">
             <span class="dynamic-island__name">Ashutosh</span>
