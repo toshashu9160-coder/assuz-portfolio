@@ -329,16 +329,12 @@ function renderApp() {
 
           <div class="videos__grid">
             ${videos.map((vid, idx) => `
-              <div class="video-card reveal-up" data-video="${idx}" data-src="${vid.src}" data-title="${vid.title}" data-cat="${vid.category}">
+              <div class="video-card reveal-up" data-video="${idx}">
                 <div class="video-card__thumb">
-                  <video
-                    class="video-card__preview"
-                    src="${vid.src}#t=0.1"
-                    muted
-                    loop
-                    playsinline
-                    preload="metadata"
-                  ></video>
+                  ${vid.type === 'local'
+                    ? `<video class="video-card__preview" src="${vid.src}" muted loop playsinline preload="metadata" crossorigin="anonymous"></video>`
+                    : `<iframe class="video-card__iframe" src="${vid.src}?rel=0&modestbranding=1&showinfo=0&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="${vid.title}"></iframe>`
+                  }
                   <div class="video-card__overlay">
                     <button class="video-card__play-btn" aria-label="Play ${vid.title}">
                       <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M8 5v14l11-7z"/></svg>
@@ -905,10 +901,14 @@ function initVideoSection() {
   document.querySelectorAll('.video-card').forEach((card) => {
     const preview = card.querySelector('.video-card__preview');
 
-    // Hover — play / pause the muted preview clip
+    // ── Hover preview (desktop) ──────────────────────────────────────────────
+    // Always muted — required by every desktop browser's autoplay policy.
+    // We catch the Promise so a NotAllowedError never bubbles to the console.
     if (preview) {
       card.addEventListener('mouseenter', () => {
-        preview.play().catch(() => {}); // suppress autoplay errors
+        preview.muted = true;
+        const p = preview.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
       });
       card.addEventListener('mouseleave', () => {
         preview.pause();
@@ -916,25 +916,55 @@ function initVideoSection() {
       });
     }
 
-    // Click — open full-screen lightbox with sound
+    // ── Click → open lightbox ────────────────────────────────────────────────
     card.addEventListener('click', () => {
-      const src   = card.dataset.src;
-      const title = card.dataset.title;
-      const cat   = card.dataset.cat;
+      if (preview) { preview.pause(); preview.currentTime = 0; }
 
-      lbTitle.textContent = title;
-      lbCat.textContent   = cat;
+      const idx = parseInt(card.dataset.video, 10);
+      const vid  = videos[idx];
 
-      // All our videos are mp4 from Supabase — always use <video>
-      lbInner.innerHTML = `
-        <video
-          src="${src}"
-          controls
-          autoplay
-          playsinline
-          class="video-lightbox__player"
-        ></video>
-      `;
+      lbTitle.textContent = vid.title;
+      lbCat.textContent   = vid.category;
+
+      if (vid.type === 'local') {
+        // Create the video element in JS (not via innerHTML autoplay attr)
+        // so we can call .play() ourselves *inside* the click handler —
+        // that makes it a trusted user-gesture on every desktop browser.
+        const vidEl = document.createElement('video');
+        vidEl.src            = vid.src;
+        vidEl.controls       = true;
+        vidEl.playsinline    = true;
+        vidEl.className      = 'video-lightbox__player';
+        vidEl.crossOrigin    = 'anonymous';
+        vidEl.preload        = 'auto';
+
+        lbInner.innerHTML = '';
+        lbInner.appendChild(vidEl);
+
+        // Play with sound — user clicked, so this is always allowed.
+        vidEl.muted = false;
+        const p = vidEl.play();
+        if (p && typeof p.catch === 'function') {
+          p.catch(() => {
+            // Fallback: muted play (edge case — very old mobile safari)
+            vidEl.muted = true;
+            vidEl.play().catch(() => {});
+          });
+        }
+      } else {
+        // YouTube / Vimeo embed
+        const sep    = vid.src.includes('?') ? '&' : '?';
+        const iframe = document.createElement('iframe');
+        iframe.src             = vid.src + sep + 'autoplay=1&rel=0';
+        iframe.frameBorder     = '0';
+        iframe.allow           = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+        iframe.allowFullscreen = true;
+        iframe.className       = 'video-lightbox__player video-lightbox__player--embed';
+        iframe.title           = vid.title;
+
+        lbInner.innerHTML = '';
+        lbInner.appendChild(iframe);
+      }
 
       lightbox.classList.add('open');
       if (scrollSmoother) scrollSmoother.pause();
@@ -942,17 +972,16 @@ function initVideoSection() {
     });
   });
 
+  // ── Close ────────────────────────────────────────────────────────────────
   function closeVideoLightbox() {
     lightbox.classList.remove('open');
-    lbInner.innerHTML = ''; // kills playback immediately
+    lbInner.innerHTML = '';           // destroys video/iframe → stops playback
     if (scrollSmoother) scrollSmoother.resume();
     document.body.style.overflow = '';
   }
 
   lbClose.addEventListener('click', closeVideoLightbox);
-  lightbox.addEventListener('click', (e) => {
-    if (e.target === lightbox) closeVideoLightbox();
-  });
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeVideoLightbox(); });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && lightbox.classList.contains('open')) closeVideoLightbox();
   });

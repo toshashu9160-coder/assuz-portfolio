@@ -956,14 +956,16 @@ img { max-width: 100%; display: block; }
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(2px);
-  opacity: 0;
-  transition: opacity var(--transition-fast);
+  background: rgba(0, 0, 0, 0.25);
+  opacity: 1; /* always visible — play icon is always shown faintly */
+  transition: opacity var(--transition-fast), background var(--transition-fast);
+  pointer-events: none; /* let card-level click handle it; prevents blocking hover */
 }
 
 .video-card:hover .video-card__overlay {
   opacity: 1;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
 }
 
 .video-card__play-btn {
@@ -976,13 +978,16 @@ img { max-width: 100%; display: block; }
   display: flex;
   align-items: center;
   justify-content: center;
-  transform: scale(0.85);
-  transition: transform var(--transition-fast), background var(--transition-fast);
+  transform: scale(0.75);
+  opacity: 0.7;
+  transition: transform var(--transition-fast), background var(--transition-fast), opacity var(--transition-fast);
   box-shadow: 0 8px 32px rgba(200, 255, 0, 0.35);
+  pointer-events: none;
 }
 
 .video-card:hover .video-card__play-btn {
   transform: scale(1);
+  opacity: 1;
 }
 
 .video-card__play-btn:hover {
