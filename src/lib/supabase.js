@@ -3,6 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Hardcoded public base — videos are public and don't need auth
+export const SUPABASE_PUBLIC_BASE = 'https://nsvyzdkxfkcxqbirbsqw.supabase.co/storage/v1/object/public/portfolio-images';
+
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase credentials not configured. Using local images.');
 }
@@ -48,35 +51,22 @@ export async function uploadImages(files, folder) {
 }
 
 export function getPublicUrl(path) {
-  if (!supabase) return null;
-
-  const { data: { publicUrl } } = supabase.storage
-    .from(BUCKET_NAME)
-    .getPublicUrl(path);
-
-  return publicUrl;
+  // Always use the hardcoded base so it works even without env vars
+  return `${SUPABASE_PUBLIC_BASE}/${path}`;
 }
 
 export function getImageUrl(projectName, imageName) {
-  if (!supabase) return `/projects/${projectName}/${imageName}`;
-
   return getPublicUrl(`projects/${projectName}/${imageName}`);
 }
 
 export function getWorkImageUrl(imageName) {
-  if (!supabase) return `/works/${imageName}`;
-
   return getPublicUrl(`works/${imageName}`);
 }
 
 export function getProjectCoverUrl(projectName) {
-  if (!supabase) return `/projects/${projectName}/1.png`;
-
   return getPublicUrl(`projects/${projectName}/1.png`);
 }
 
 export function getVideoUrl(fileName) {
-  if (!supabase) return `/projects/projects/Videos/${fileName}`;
-
   return getPublicUrl(`videos/${fileName}`);
 }

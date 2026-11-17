@@ -329,12 +329,16 @@ function renderApp() {
 
           <div class="videos__grid">
             ${videos.map((vid, idx) => `
-              <div class="video-card reveal-up" data-video="${idx}">
+              <div class="video-card reveal-up" data-video="${idx}" data-src="${vid.src}" data-title="${vid.title}" data-cat="${vid.category}">
                 <div class="video-card__thumb">
-                  ${vid.type === 'local'
-                    ? `<video class="video-card__preview" src="${vid.src}" muted loop playsinline></video>`
-                    : `<iframe class="video-card__iframe" src="${vid.src}?rel=0&modestbranding=1&showinfo=0&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="${vid.title}"></iframe>`
-                  }
+                  <video
+                    class="video-card__preview"
+                    src="${vid.src}#t=0.1"
+                    muted
+                    loop
+                    playsinline
+                    preload="metadata"
+                  ></video>
                   <div class="video-card__overlay">
                     <button class="video-card__play-btn" aria-label="Play ${vid.title}">
                       <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M8 5v14l11-7z"/></svg>
@@ -891,37 +895,46 @@ function initProjectCards() {
 // --- Video Section ---
 function initVideoSection() {
   const lightbox = document.getElementById('videoLightbox');
-  const lbInner = document.getElementById('videoLightboxInner');
-  const lbTitle = document.getElementById('videoLightboxTitle');
-  const lbCat   = document.getElementById('videoLightboxCat');
-  const lbClose = document.getElementById('videoLightboxClose');
+  const lbInner  = document.getElementById('videoLightboxInner');
+  const lbTitle  = document.getElementById('videoLightboxTitle');
+  const lbCat    = document.getElementById('videoLightboxCat');
+  const lbClose  = document.getElementById('videoLightboxClose');
 
   if (!lightbox) return;
 
-  // Hover: play/pause local video previews
   document.querySelectorAll('.video-card').forEach((card) => {
     const preview = card.querySelector('.video-card__preview');
 
+    // Hover — play / pause the muted preview clip
     if (preview) {
-      card.addEventListener('mouseenter', () => preview.play());
-      card.addEventListener('mouseleave', () => { preview.pause(); preview.currentTime = 0; });
+      card.addEventListener('mouseenter', () => {
+        preview.play().catch(() => {}); // suppress autoplay errors
+      });
+      card.addEventListener('mouseleave', () => {
+        preview.pause();
+        preview.currentTime = 0;
+      });
     }
 
-    // Click — open lightbox
+    // Click — open full-screen lightbox with sound
     card.addEventListener('click', () => {
-      const idx = parseInt(card.dataset.video, 10);
-      const vid = videos[idx];
+      const src   = card.dataset.src;
+      const title = card.dataset.title;
+      const cat   = card.dataset.cat;
 
-      lbTitle.textContent = vid.title;
-      lbCat.textContent   = vid.category;
+      lbTitle.textContent = title;
+      lbCat.textContent   = cat;
 
-      if (vid.type === 'local') {
-        lbInner.innerHTML = `<video src="${vid.src}" controls autoplay playsinline class="video-lightbox__player"></video>`;
-      } else {
-        // YouTube / Vimeo embed — force autoplay
-        const autoSrc = vid.src.includes('?') ? vid.src + '&autoplay=1' : vid.src + '?autoplay=1';
-        lbInner.innerHTML = `<iframe src="${autoSrc}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="video-lightbox__player video-lightbox__player--embed" title="${vid.title}"></iframe>`;
-      }
+      // All our videos are mp4 from Supabase — always use <video>
+      lbInner.innerHTML = `
+        <video
+          src="${src}"
+          controls
+          autoplay
+          playsinline
+          class="video-lightbox__player"
+        ></video>
+      `;
 
       lightbox.classList.add('open');
       if (scrollSmoother) scrollSmoother.pause();
@@ -931,13 +944,15 @@ function initVideoSection() {
 
   function closeVideoLightbox() {
     lightbox.classList.remove('open');
-    lbInner.innerHTML = ''; // stop playback
+    lbInner.innerHTML = ''; // kills playback immediately
     if (scrollSmoother) scrollSmoother.resume();
     document.body.style.overflow = '';
   }
 
   lbClose.addEventListener('click', closeVideoLightbox);
-  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeVideoLightbox(); });
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeVideoLightbox();
+  });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && lightbox.classList.contains('open')) closeVideoLightbox();
   });
