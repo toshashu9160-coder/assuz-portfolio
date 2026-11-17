@@ -13,7 +13,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollSmoother } from "gsap/ScrollSmoother";
 import { SplitText } from "gsap/SplitText";
 import { TextPlugin } from "gsap/TextPlugin";
-import { supabase, getImageUrl, getWorkImageUrl, getProjectCoverUrl, BUCKET_NAME } from './lib/supabase.js';
+import { supabase, getImageUrl, getWorkImageUrl, getProjectCoverUrl, getVideoUrl, BUCKET_NAME } from './lib/supabase.js';
 
 gsap.registerPlugin(MotionPathPlugin, ScrollTrigger, ScrollSmoother, SplitText, TextPlugin, RoughEase, ExpoScaleEase, SlowMo, CustomEase, CustomBounce);
 
@@ -67,21 +67,21 @@ const videos = [
     title: 'Short Form / Reel',
     category: 'Short Form',
     type: 'local',
-    src: '/projects/projects/Videos/1111.mp4',
+    src: getVideoUrl('1111.mp4'),
   },
   {
     id: 2,
     title: 'Lyrical Edit',
     category: 'Lyrical Edit',
     type: 'local',
-    src: '/projects/projects/Videos/222222.mp4',
+    src: getVideoUrl('222222.mp4'),
   },
   {
     id: 3,
     title: 'Long Form',
     category: 'Long Form',
     type: 'local',
-    src: '/projects/projects/Videos/3333.mp4',
+    src: getVideoUrl('3333.mp4'),
   },
 ];
 

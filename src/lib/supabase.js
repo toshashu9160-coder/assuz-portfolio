@@ -74,3 +74,9 @@ export function getProjectCoverUrl(projectName) {
 
   return getPublicUrl(`projects/${projectName}/1.png`);
 }
+
+export function getVideoUrl(fileName) {
+  if (!supabase) return `/projects/projects/Videos/${fileName}`;
+
+  return getPublicUrl(`videos/${fileName}`);
+}
