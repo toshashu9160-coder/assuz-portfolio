@@ -60,6 +60,31 @@ const works = [
   { id: 8, src: getWorkImageUrl('8.jpg'), title: 'Kendrick Lamar — GNX', category: 'Typographic Poster' },
 ];
 
+// --- Videos Data ---
+const videos = [
+  {
+    id: 1,
+    title: 'Video 01',
+    category: 'Motion Graphics',
+    type: 'local',
+    src: '/projects/projects/Videos/1111.mp4',
+  },
+  {
+    id: 2,
+    title: 'Video 02',
+    category: 'Visual Art',
+    type: 'local',
+    src: '/projects/projects/Videos/222222.mp4',
+  },
+  {
+    id: 3,
+    title: 'Video 03',
+    category: 'Brand Video',
+    type: 'local',
+    src: '/projects/projects/Videos/3333.mp4',
+  },
+];
+
 // --- SVGs ---
 const arrowSVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>`;
 const closeSVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>`;
@@ -172,6 +197,7 @@ function renderApp() {
             <a href="#about" class="nav__link">About</a>
             <a href="#projects" class="nav__link">Projects</a>
             <a href="#gallery" class="nav__link">Gallery</a>
+            <a href="#videos" class="nav__link">Videos</a>
             <a href="#services" class="nav__link">Services</a>
             <a href="#contact" class="nav__link">Contact</a>
           </div>
@@ -185,6 +211,7 @@ function renderApp() {
           <a href="#about" class="mobile-menu__link">About</a>
           <a href="#projects" class="mobile-menu__link">Projects</a>
           <a href="#gallery" class="mobile-menu__link">Gallery</a>
+          <a href="#videos" class="mobile-menu__link">Videos</a>
           <a href="#services" class="mobile-menu__link">Services</a>
           <a href="#contact" class="mobile-menu__link">Contact</a>
         </div>
@@ -290,6 +317,49 @@ function renderApp() {
           </div>
         </section>
 
+        <!-- Videos -->
+        <section class="videos" id="videos">
+          <div class="section-header">
+            <div class="section-header__left">
+              <span class="section-number">04</span>
+              <span class="section-tag">Motion & Film</span>
+            </div>
+            <h2 class="section-header__title reveal">Videos</h2>
+          </div>
+
+          <div class="videos__grid">
+            ${videos.map((vid, idx) => `
+              <div class="video-card reveal-up" data-video="${idx}">
+                <div class="video-card__thumb">
+                  ${vid.type === 'local'
+                    ? `<video class="video-card__preview" src="${vid.src}" muted loop playsinline></video>`
+                    : `<iframe class="video-card__iframe" src="${vid.src}?rel=0&modestbranding=1&showinfo=0&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="${vid.title}"></iframe>`
+                  }
+                  <div class="video-card__overlay">
+                    <button class="video-card__play-btn" aria-label="Play ${vid.title}">
+                      <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M8 5v14l11-7z"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="video-card__info">
+                  <span class="video-card__category">${vid.category}</span>
+                  <h3 class="video-card__title">${vid.title}</h3>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </section>
+
+        <!-- Video Lightbox -->
+        <div class="video-lightbox" id="videoLightbox">
+          <button class="video-lightbox__close" id="videoLightboxClose" aria-label="Close">${closeSVG}</button>
+          <div class="video-lightbox__inner" id="videoLightboxInner"></div>
+          <div class="video-lightbox__info">
+            <span class="video-lightbox__title" id="videoLightboxTitle"></span>
+            <span class="video-lightbox__cat" id="videoLightboxCat"></span>
+          </div>
+        </div>
+
         <!-- Marquee -->
         <div class="marquee" aria-hidden="true">
           <div class="marquee__track">
@@ -301,7 +371,7 @@ function renderApp() {
         <section class="services" id="services">
           <div class="section-header">
             <div class="section-header__left">
-              <span class="section-number">04</span>
+              <span class="section-number">05</span>
               <span class="section-tag">Services</span>
             </div>
             <h2 class="section-header__title reveal">What I Do</h2>
@@ -343,7 +413,7 @@ function renderApp() {
         <section class="contact" id="contact">
           <div class="section-grid">
             <div class="contact__label">
-              <span class="section-number">05</span>
+              <span class="section-number">06</span>
               <span class="section-tag">Get In Touch</span>
             </div>
             <div class="contact__content">
@@ -400,6 +470,7 @@ function initApp() {
   initParallaxGallery();
   initLightbox();
   initProjectCards();
+  initVideoSection();
   initDynamicIsland();
   initServices();
 }
@@ -458,7 +529,7 @@ function initCursor() {
 
   // Robust Event Delegation for Interactive Elements
   document.addEventListener('mouseover', (e) => {
-    const target = e.target.closest('a, button, .project-card, .parallax-cell, .service, .project-viewer__close, input, select, textarea, .dynamic-island, .dynamic-island__social-link');
+    const target = e.target.closest('a, button, .project-card, .parallax-cell, .service, .project-viewer__close, input, select, textarea, .dynamic-island, .dynamic-island__social-link, .video-card');
     if (target) {
       dot.classList.add('hovering');
       ring.classList.add('hovering');
@@ -466,7 +537,7 @@ function initCursor() {
   });
 
   document.addEventListener('mouseout', (e) => {
-    const target = e.target.closest('a, button, .project-card, .parallax-cell, .service, .project-viewer__close, input, select, textarea, .dynamic-island, .dynamic-island__social-link');
+    const target = e.target.closest('a, button, .project-card, .parallax-cell, .service, .project-viewer__close, input, select, textarea, .dynamic-island, .dynamic-island__social-link, .video-card');
     if (target) {
       dot.classList.remove('hovering');
       ring.classList.remove('hovering');
@@ -599,6 +670,7 @@ function initGSAP() {
   const revealTriggers = [
     { selector: ".about__text", stagger: 0.15 },
     { selector: ".project-card", stagger: 0.2 },
+    { selector: ".video-card", stagger: 0.18 },
     { selector: ".service", stagger: 0.15 },
     { selector: ".testimonial__content", stagger: 0 },
     { selector: ".whatsapp-cta", stagger: 0 }
@@ -813,6 +885,61 @@ function initProjectCards() {
     if (e.key === 'Escape' && viewer.classList.contains('open')) {
       closeViewer();
     }
+  });
+}
+
+// --- Video Section ---
+function initVideoSection() {
+  const lightbox = document.getElementById('videoLightbox');
+  const lbInner = document.getElementById('videoLightboxInner');
+  const lbTitle = document.getElementById('videoLightboxTitle');
+  const lbCat   = document.getElementById('videoLightboxCat');
+  const lbClose = document.getElementById('videoLightboxClose');
+
+  if (!lightbox) return;
+
+  // Hover: play/pause local video previews
+  document.querySelectorAll('.video-card').forEach((card) => {
+    const preview = card.querySelector('.video-card__preview');
+
+    if (preview) {
+      card.addEventListener('mouseenter', () => preview.play());
+      card.addEventListener('mouseleave', () => { preview.pause(); preview.currentTime = 0; });
+    }
+
+    // Click — open lightbox
+    card.addEventListener('click', () => {
+      const idx = parseInt(card.dataset.video, 10);
+      const vid = videos[idx];
+
+      lbTitle.textContent = vid.title;
+      lbCat.textContent   = vid.category;
+
+      if (vid.type === 'local') {
+        lbInner.innerHTML = `<video src="${vid.src}" controls autoplay playsinline class="video-lightbox__player"></video>`;
+      } else {
+        // YouTube / Vimeo embed — force autoplay
+        const autoSrc = vid.src.includes('?') ? vid.src + '&autoplay=1' : vid.src + '?autoplay=1';
+        lbInner.innerHTML = `<iframe src="${autoSrc}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="video-lightbox__player video-lightbox__player--embed" title="${vid.title}"></iframe>`;
+      }
+
+      lightbox.classList.add('open');
+      if (scrollSmoother) scrollSmoother.pause();
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  function closeVideoLightbox() {
+    lightbox.classList.remove('open');
+    lbInner.innerHTML = ''; // stop playback
+    if (scrollSmoother) scrollSmoother.resume();
+    document.body.style.overflow = '';
+  }
+
+  lbClose.addEventListener('click', closeVideoLightbox);
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeVideoLightbox(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox.classList.contains('open')) closeVideoLightbox();
   });
 }
 
