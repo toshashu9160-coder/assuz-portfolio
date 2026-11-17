@@ -64,22 +64,22 @@ const works = [
 const videos = [
   {
     id: 1,
-    title: 'Video 01',
-    category: 'Motion Graphics',
+    title: 'Short Form / Reel',
+    category: 'Short Form',
     type: 'local',
     src: '/projects/projects/Videos/1111.mp4',
   },
   {
     id: 2,
-    title: 'Video 02',
-    category: 'Visual Art',
+    title: 'Lyrical Edit',
+    category: 'Lyrical Edit',
     type: 'local',
     src: '/projects/projects/Videos/222222.mp4',
   },
   {
     id: 3,
-    title: 'Video 03',
-    category: 'Brand Video',
+    title: 'Long Form',
+    category: 'Long Form',
     type: 'local',
     src: '/projects/projects/Videos/3333.mp4',
   },
